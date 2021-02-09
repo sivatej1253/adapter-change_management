@@ -60,7 +60,8 @@ class ServiceNowAdapter extends EventEmitter {
     this.id = id;
     this.props = adapterProperties;
     // Instantiate an object from the connector.js module and assign it to an object property.
-    this.connector = new ServiceNowConnector({
+    log.info("URL is - " + this.props.url);
+     this.connector = new ServiceNowConnector({
       url: this.props.url,
       username: this.props.auth.username,
       password: this.props.auth.password,
@@ -94,14 +95,19 @@ class ServiceNowAdapter extends EventEmitter {
    *   that handles the response.
    */
   healthcheck(callback) {
- this.getRecord((result, error) => {
+    let callbackData = null;
+  let callbackError = null;
+
+ this.getRecord( (result, error) => {
    /**
     * For this lab, complete the if else conditional
     * statements that check if an error exists
     * or the instance was hibernating. You must write
     * the blocks for each branch.
     */
+
    if (error) {
+       callbackError=error;
      /**
       * Write this block.
       * If an error was returned, we need to emit OFFLINE.
@@ -114,9 +120,9 @@ class ServiceNowAdapter extends EventEmitter {
       * healthcheck(), execute it passing the error seen as an argument
       * for the callback's errorMessage parameter.
       */
+      log.info("before onfline callbackData:"+callbackError);
       this.emitOffline();
-      callback = error;
-      log.debug('Service now adapter is offline {this.id}');
+      log.info("after callbackData:"+callbackError);
    } else {
      /**
       * Write this block.
@@ -128,12 +134,15 @@ class ServiceNowAdapter extends EventEmitter {
       * parameter as an argument for the callback function's
       * responseData parameter.
       */
-      this.emitOnline();
-      log.debug('Service now adapter is online');
-      callback= result;
+      callbackData=result;
+      log.info("after online callbackData:"+callbackData);
+     this.emitOnline();
+     log.info("after online callbackData:"+callbackData);
    }
+   //return callback(callbackData, callbackError);
  });
-}
+  }
+
   /**
    * @memberof ServiceNowAdapter
    * @method emitOffline
@@ -187,7 +196,17 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     ServiceNowConnector.get(callback);
+     let callbackData = null;
+  let callbackError = null;
+     this.connector.get((data, error) => {
+    if (error) {
+     // console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
+      callbackError=error
+    }
+    callbackData=data;
+    //console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
+     return callback(callbackData, callbackError);
+  });
   }
 
   /**
@@ -206,7 +225,17 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     ServiceNowConnector.post(callback);
+     let callbackData = null;
+  let callbackError = null;
+    this.connector.post(this.connector.serviceNowTable, (data, error) => {
+   if (error) {
+     // console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
+      callbackError=error
+    }
+    callbackData=data;
+    //console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
+     return callback(callbackData, callbackError);
+  });
   }
 }
 
