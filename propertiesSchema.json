@@ -5,9 +5,9 @@
   "properties": {
     "url": {
       "type": "string",
-      "default": "https://yourDevServiceNowInstanceCanonicalHostname/",
+      "default": "https://dev74221.service-now.com/",
       "examples": [
-        "https://yourDevServiceNowInstanceCanonicalHostname/"
+        "https://dev74221.service-now.com/"
       ]
     },
     "auth": {
